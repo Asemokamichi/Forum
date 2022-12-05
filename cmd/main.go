@@ -17,6 +17,7 @@ func main() {
 
 	repository := repository.NewRepository(db)
 	if err := repository.Create(); err != nil {
+		log.Fatal(err)
 		return
 	}
 

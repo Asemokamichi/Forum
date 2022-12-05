@@ -63,31 +63,29 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) signIn(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/signUp" {
+	if r.URL.Path != "/signIn" {
 		h.errorPage(w, 500)
 		return
 	}
 
 	if r.Method == http.MethodGet {
-		if err := h.tmpl.ExecuteTemplate(w, "signUp.html", nil); err != nil {
+		if err := h.tmpl.ExecuteTemplate(w, "signIn.html", nil); err != nil {
 			h.errorPage(w, 500)
 			return
 		}
 	} else if r.Method == http.MethodPost {
-		if err := r.ParseForm(); err!=nil{
+		if err := r.ParseForm(); err != nil {
 			log.Fatal("ParseForm auth signIn", err)
-		}
-
-		username, ok := r.Form["username"]
-		if !ok {
-			w.Write([]byte("Sign Up: Parse Form: username field not found"))
-			http.Redirect(w, r, "/signUp", http.StatusSeeOther)
 		}
 
 		password, ok := r.Form["password"]
 		if !ok {
-			w.Write([]byte("Sign Up: Parse Form: password field not found"))
-			http.Redirect(w, r, "/signUp", http.StatusSeeOther)
+			log.Fatal("ParseForm auth signIn password")
+		}
+
+		username, ok := r.Form["username"]
+		if !ok {
+			log.Fatal("ParseForm auth signIn username")
 		}
 
 		user := model.User{
@@ -95,6 +93,24 @@ func (h *Handler) signIn(w http.ResponseWriter, r *http.Request) {
 			Password: password[0],
 		}
 
-		
+		user, err := h.Service.GetUser(user)
+		if err != nil {
+			log.Fatal(err)
+		}
+		http.Redirect(w, r, "/registration", http.StatusSeeOther)
 	}
+}
+
+func (h *Handler) registration(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/registration" {
+		h.errorPage(w, http.StatusNotFound)
+		return
+	}
+
+	if r.Method == http.MethodGet {
+		if err := h.tmpl.ExecuteTemplate(w, "register.html", nil); err != nil {
+			h.errorPage(w, 500)
+		}
+	}
+
 }

@@ -31,7 +31,6 @@ func (db *Repository) Create() error {
 			Password TEXT NOT NULL
 		);
 	`
-
-	db.db.Prepare(query)
+	db.db.Exec(query)
 	return nil
 }

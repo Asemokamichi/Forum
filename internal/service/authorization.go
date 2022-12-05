@@ -24,6 +24,26 @@ func (servise *Service) CreateUser(user model.User) error {
 
 }
 
+func (servise *Service) GetUser(user model.User) (model.User, error) {
+	hashPass, err := genereteHashPassword(user.Password)
+	if err != nil {
+		return model.User{}, err
+	}
+
+	user.HashedPassword = hashPass
+
+	checkUser, err := servise.repository.GetUser(user.Username)
+	if err != nil {
+		return model.User{}, err
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(checkUser.HashedPassword), []byte(user.Password)); err != nil {
+		return model.User{}, fmt.Errorf("NOT HashedPassword")
+	}
+
+	return checkUser, nil
+}
+
 func CheckPassword(password string) bool {
 	numbers := "0123456789"
 	lowerCase := "qwertyuiopasdfghjklzxcvbnm"
@@ -59,3 +79,4 @@ func genereteHashPassword(password string) (string, error) {
 	pass, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
 	return string(pass), err
 }
+

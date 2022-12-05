@@ -19,14 +19,13 @@ func (db *Repository) CreateUser(user model.User) error {
 	return nil
 }
 
-func (db *Repository) GetUser(user model.User) error {
+func (db *Repository) GetUser(username string) (model.User, error) {
 	query := `
-		SELECT COUNT(*) FROM USER WHERE Username = ?;
+		SELECT ID, Username, Email, Password FROM USER WHERE Username = ?;
 	`
-	var count int
-	if err := db.db.QueryRow(query, user.Username, user.Password).Scan(&count); count!=0{
+	var user model.User
+	if err := db.db.QueryRow(query, username).Scan(&user.ID, &user.Username, &user.Email, &user.HashedPassword); err != nil {
 		log.Fatal(err)
 	}
-
-	if count 
+	return user, nil
 }
