@@ -1,19 +1,18 @@
 package delivery
 
-import "net/http"
+import (
+	"net/http"
+)
 
-func (h *Handler) errorPage(w http.ResponseWriter, code int) {
+func (h *Handler) servErrors(w http.ResponseWriter, code int) {
 	w.WriteHeader(code)
-
-	data := struct {
-		Status  int
-		Message string
+	if err := h.tmpl.ExecuteTemplate(w, "error.html", struct {
+		code     int
+		codeText string
 	}{
-		Status:  code,
-		Message: http.StatusText(code),
-	}
-
-	if err := h.tmpl.ExecuteTemplate(w, "error.html", data); err != nil {
-		http.Error(w, http.StatusText(code), http.StatusInternalServerError)
+		code:     code,
+		codeText: http.StatusText(code),
+	}); err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 	}
 }

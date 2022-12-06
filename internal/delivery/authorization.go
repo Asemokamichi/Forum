@@ -7,28 +7,33 @@ import (
 	"github.com/Asemokamichi/Forum/internal/model"
 )
 
+var answer string
+
 func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/signUp" {
-		log.Fatal("Error Url auth signUp", r.URL.Path)
+		log.Println("Error Url auth signUp", r.URL.Path)
+		h.servErrors(w, http.StatusNotFound)
 	}
 
 	if r.Method == http.MethodGet {
-		if err := h.tmpl.ExecuteTemplate(w, "signUp.html", nil); err != nil {
-			log.Fatal("ExecuteTemplate auth signUp", err)
+		if err := h.tmpl.ExecuteTemplate(w, "signUp.html", answer); err != nil {
+			log.Println("ExecuteTemplate auth signUp", err)
+			h.servErrors(w, http.StatusInternalServerError)
 		}
 	} else if r.Method == http.MethodPost {
 		if err := r.ParseForm(); err != nil {
-			log.Fatal("ParseForm auth signUp", err)
+			log.Println("ParseForm auth signUp", err)
+			h.servErrors(w, http.StatusInternalServerError)
 		}
 
 		username, ok := r.Form["username"]
 		if !ok {
-			w.Write([]byte("Sign Up: Parse Form: username field not found"))
+			answer = "Sign Up: Parse Form: username field not found"
 			http.Redirect(w, r, "/signUp", http.StatusSeeOther)
 		}
 
 		email, ok := r.Form["email"]
-		if !ok {
+		if !ok || len(email[0]) == 0 {
 			w.Write([]byte("Sign Up: Parse Form: email field not found"))
 			http.Redirect(w, r, "/signUp", http.StatusSeeOther)
 		}
@@ -56,36 +61,38 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if err := h.Service.CreateUser(user); err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			h.servErrors(w, http.StatusInternalServerError)
 		}
-
+		answer = ""
 	}
 }
 
 func (h *Handler) signIn(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/signIn" {
-		h.errorPage(w, 500)
+		h.servErrors(w, http.StatusInternalServerError)
 		return
 	}
 
 	if r.Method == http.MethodGet {
 		if err := h.tmpl.ExecuteTemplate(w, "signIn.html", nil); err != nil {
-			h.errorPage(w, 500)
+			h.servErrors(w, http.StatusInternalServerError)
 			return
 		}
 	} else if r.Method == http.MethodPost {
 		if err := r.ParseForm(); err != nil {
-			log.Fatal("ParseForm auth signIn", err)
+			log.Println("ParseForm auth signIn", err)
+			h.servErrors(w, http.StatusInternalServerError)
 		}
 
 		password, ok := r.Form["password"]
 		if !ok {
-			log.Fatal("ParseForm auth signIn password")
+			log.Println("ParseForm auth signIn password")
 		}
 
 		username, ok := r.Form["username"]
 		if !ok {
-			log.Fatal("ParseForm auth signIn username")
+			log.Println("ParseForm auth signIn username")
 		}
 
 		user := model.User{
@@ -95,7 +102,8 @@ func (h *Handler) signIn(w http.ResponseWriter, r *http.Request) {
 
 		user, err := h.Service.GetUser(user)
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
+			h.servErrors(w, http.StatusInternalServerError)
 		}
 		http.Redirect(w, r, "/registration", http.StatusSeeOther)
 	}
@@ -103,14 +111,13 @@ func (h *Handler) signIn(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) registration(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/registration" {
-		h.errorPage(w, http.StatusNotFound)
+		h.servErrors(w, http.StatusNotFound)
 		return
 	}
 
 	if r.Method == http.MethodGet {
 		if err := h.tmpl.ExecuteTemplate(w, "register.html", nil); err != nil {
-			h.errorPage(w, 500)
+			h.servErrors(w, http.StatusInternalServerError)
 		}
 	}
-
 }
