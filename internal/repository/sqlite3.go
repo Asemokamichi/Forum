@@ -24,11 +24,17 @@ func NewDataBase(dbName string) (*sql.DB, error) {
 
 func (db *Repository) Create() error {
 	query := `
-		CREATE TABLE IF NOT EXIST USER(
+		CREATE TABLE IF NOT EXISTS USER(
 			ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 			Username TEXT NOT NULL UNIQUE,
 			Email TEXT NOT NULL UNIQUE,
 			Password TEXT NOT NULL
+		);
+		CREATE TABLE IF NOT EXISTS SESSION(
+			ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			UserID INTEGER NOT NULL,
+			UUID TEXT NOT NULL,
+			ExpDate DATATIME NOT NULL
 		);
 	`
 	if _, err := db.db.Exec(query); err != nil {
