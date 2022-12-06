@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/Asemokamichi/Forum/internal/model"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -24,24 +26,41 @@ func (servise *Service) CreateUser(user model.User) error {
 
 }
 
-func (servise *Service) GetUser(user model.User) (model.User, error) {
-	hashPass, err := genereteHashPassword(user.Password)
+func (servise *Service) CreateSession(username string, password string) (model.Session, error) {
+	user, err := servise.repository.GetUser(username)
+	if err != nil {
+		return model.Session{}, err
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(password)); err != nil {
+		return model.Session{}, fmt.Errorf("NOT HashedPassword")
+	}
+
+	var session model.Session = model.Session{
+		UserID:  user.ID,
+		UUID:    uuid.NewString(),
+		ExpDate: time.Now().Add(6 * time.Hour),
+	}
+
+	if err := servise.repository.CreateSession(session); err != nil {
+		return model.Session{}, err
+	}
+
+	return session, nil
+}
+
+func (service *Service) GetUserSession(token string) (model.User, error) {
+	session, err := service.repository.GetSession(token)
 	if err != nil {
 		return model.User{}, err
 	}
 
-	user.HashedPassword = hashPass
-
-	checkUser, err := servise.repository.GetUser(user.Username)
+	user, err := service.repository.GetUserID(session.UserID)
 	if err != nil {
 		return model.User{}, err
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(checkUser.HashedPassword), []byte(user.Password)); err != nil {
-		return model.User{}, fmt.Errorf("NOT HashedPassword")
-	}
-
-	return checkUser, nil
+	return user, nil
 }
 
 func CheckPassword(password string) bool {
@@ -79,4 +98,3 @@ func genereteHashPassword(password string) (string, error) {
 	pass, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
 	return string(pass), err
 }
-

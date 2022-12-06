@@ -7,8 +7,6 @@ import (
 	"github.com/Asemokamichi/Forum/internal/model"
 )
 
-var answer string
-
 func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/signUp" {
 		log.Println("Error Url auth signUp", r.URL.Path)
@@ -16,7 +14,7 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodGet {
-		if err := h.tmpl.ExecuteTemplate(w, "signUp.html", answer); err != nil {
+		if err := h.tmpl.ExecuteTemplate(w, "signUp.html", nil); err != nil {
 			log.Println("ExecuteTemplate auth signUp", err)
 			h.servErrors(w, http.StatusInternalServerError)
 		}
@@ -28,7 +26,7 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 
 		username, ok := r.Form["username"]
 		if !ok {
-			answer = "Sign Up: Parse Form: username field not found"
+			// answer = "Sign Up: Parse Form: username field not found"
 			http.Redirect(w, r, "/signUp", http.StatusSeeOther)
 		}
 
@@ -64,7 +62,8 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 			log.Println(err)
 			h.servErrors(w, http.StatusInternalServerError)
 		}
-		answer = ""
+
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
 }
 
@@ -83,29 +82,36 @@ func (h *Handler) signIn(w http.ResponseWriter, r *http.Request) {
 		if err := r.ParseForm(); err != nil {
 			log.Println("ParseForm auth signIn", err)
 			h.servErrors(w, http.StatusInternalServerError)
-		}
-
-		password, ok := r.Form["password"]
-		if !ok {
-			log.Println("ParseForm auth signIn password")
+			return
 		}
 
 		username, ok := r.Form["username"]
 		if !ok {
 			log.Println("ParseForm auth signIn username")
+			h.servErrors(w, 500)
+			return
 		}
 
-		user := model.User{
-			Username: username[0],
-			Password: password[0],
+		password, ok := r.Form["password"]
+		if !ok {
+			log.Println("ParseForm auth signIn password")
+			h.servErrors(w, 500)
+			return
 		}
 
-		user, err := h.Service.GetUser(user)
+		user, err := h.Service.CreateSession(username[0], password[0])
 		if err != nil {
 			log.Println(err)
 			h.servErrors(w, http.StatusInternalServerError)
+			return
 		}
-		http.Redirect(w, r, "/registration", http.StatusSeeOther)
+		http.SetCookie(w, &http.Cookie{
+			Name:    "session-token",
+			Value:   user.UUID,
+			Expires: user.ExpDate,
+			Path:    "/",
+		})
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
 }
 
