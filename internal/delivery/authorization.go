@@ -1,7 +1,7 @@
 package delivery
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 
 	"github.com/Asemokamichi/Forum/internal/model"
@@ -9,47 +9,46 @@ import (
 
 func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/signUp" {
-		log.Println("Error Url auth signUp", r.URL.Path)
-		h.servErrors(w, http.StatusNotFound)
+		h.servErrors(w, http.StatusNotFound, "Error Url auth signUp")
 	}
 
 	if r.Method == http.MethodGet {
 		if err := h.tmpl.ExecuteTemplate(w, "signUp.html", nil); err != nil {
-			log.Println("ExecuteTemplate auth signUp", err)
-			h.servErrors(w, http.StatusInternalServerError)
+			h.servErrors(w, http.StatusInternalServerError, "ExecuteTemplate auth signUp")
+			return
 		}
 	} else if r.Method == http.MethodPost {
 		if err := r.ParseForm(); err != nil {
-			log.Println("ParseForm auth signUp", err)
-			h.servErrors(w, http.StatusInternalServerError)
+			h.servErrors(w, http.StatusInternalServerError, "ParseForm auth signUp")
+			return
 		}
 
 		username, ok := r.Form["username"]
 		if !ok {
-			// answer = "Sign Up: Parse Form: username field not found"
-			http.Redirect(w, r, "/signUp", http.StatusSeeOther)
+			h.servErrors(w, http.StatusBadRequest, "Sign Up: Parse Form: username field not found")
+			return
 		}
 
 		email, ok := r.Form["email"]
 		if !ok || len(email[0]) == 0 {
-			w.Write([]byte("Sign Up: Parse Form: email field not found"))
-			http.Redirect(w, r, "/signUp", http.StatusSeeOther)
+			h.servErrors(w, http.StatusBadRequest, "Sign Up: Parse Form: username field not found")
+			return
 		}
 
 		password, ok := r.Form["password"]
 		if !ok {
-			w.Write([]byte("Sign Up: Parse Form: password field not found"))
-			http.Redirect(w, r, "/signUp", http.StatusSeeOther)
+			h.servErrors(w, http.StatusBadRequest, "Sign Up: Parse Form: password field not found")
+			return
 		}
 
 		confpassword, ok := r.Form["confirmPassword"]
 		if !ok {
-			w.Write([]byte("Sign Up: Parse Form: password field not found"))
-			http.Redirect(w, r, "/signUp", http.StatusSeeOther)
+			h.servErrors(w, http.StatusBadRequest, "Sign Up: Parse Form: password field not found")
+			return
 		}
 
 		if confpassword[0] != password[0] {
-			http.Redirect(w, r, "/signUp", http.StatusSeeOther)
+			http.Redirect(w, r, r.URL.Path, http.StatusSeeOther)
 		}
 
 		user := model.User{
@@ -59,8 +58,7 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if err := h.Service.CreateUser(user); err != nil {
-			log.Println(err)
-			h.servErrors(w, http.StatusInternalServerError)
+			h.servErrors(w, http.StatusInternalServerError, fmt.Sprint(err))
 		}
 
 		http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -69,40 +67,36 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) signIn(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/signIn" {
-		h.servErrors(w, http.StatusInternalServerError)
+		h.servErrors(w, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 		return
 	}
 
 	if r.Method == http.MethodGet {
 		if err := h.tmpl.ExecuteTemplate(w, "signIn.html", nil); err != nil {
-			h.servErrors(w, http.StatusInternalServerError)
+			h.servErrors(w, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 			return
 		}
 	} else if r.Method == http.MethodPost {
 		if err := r.ParseForm(); err != nil {
-			log.Println("ParseForm auth signIn", err)
-			h.servErrors(w, http.StatusInternalServerError)
+			h.servErrors(w, http.StatusInternalServerError, "ParseForm auth signIn")
 			return
 		}
 
 		username, ok := r.Form["username"]
 		if !ok {
-			log.Println("ParseForm auth signIn username")
-			h.servErrors(w, 500)
+			h.servErrors(w, http.StatusBadRequest, "Sign Up: Parse Form: username field not found")
 			return
 		}
 
 		password, ok := r.Form["password"]
 		if !ok {
-			log.Println("ParseForm auth signIn password")
-			h.servErrors(w, 500)
+			h.servErrors(w, http.StatusBadRequest, "Sign Up: Parse Form: password field not found")
 			return
 		}
 
 		user, err := h.Service.CreateSession(username[0], password[0])
 		if err != nil {
-			log.Println(err)
-			h.servErrors(w, http.StatusInternalServerError)
+			h.servErrors(w, http.StatusInternalServerError, fmt.Sprint(err))
 			return
 		}
 		http.SetCookie(w, &http.Cookie{
@@ -117,13 +111,14 @@ func (h *Handler) signIn(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) registration(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/registration" {
-		h.servErrors(w, http.StatusNotFound)
+		h.servErrors(w, http.StatusNotFound, http.StatusText(http.StatusNotFound))
 		return
 	}
 
 	if r.Method == http.MethodGet {
 		if err := h.tmpl.ExecuteTemplate(w, "register.html", nil); err != nil {
-			h.servErrors(w, http.StatusInternalServerError)
+			h.servErrors(w, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+			return
 		}
 	}
 }
