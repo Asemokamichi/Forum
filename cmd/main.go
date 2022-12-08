@@ -10,6 +10,9 @@ import (
 )
 
 func main() {
+	// cfg :=
+	// app := app.NewApp()
+	// app.Run(cfg))
 	db, err := repository.NewDataBase("db.db")
 	if err != nil {
 		log.Fatal(err)

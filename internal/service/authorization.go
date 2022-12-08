@@ -23,17 +23,16 @@ func (servise *Service) CreateUser(user model.User) error {
 
 	user.Password = password
 	return servise.repository.CreateUser(user)
-
 }
 
-func (servise *Service) CreateSession(username string, password string) (model.Session, error) {
+func (servise *Service) CreateSession(username string, password string) (*model.Session, error) {
 	user, err := servise.repository.GetUser(username)
 	if err != nil {
-		return model.Session{}, err
+		return nil, err
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(password)); err != nil {
-		return model.Session{}, fmt.Errorf("NOT HashedPassword")
+		return nil, fmt.Errorf("NOT HashedPassword")
 	}
 
 	var session model.Session = model.Session{
@@ -43,24 +42,24 @@ func (servise *Service) CreateSession(username string, password string) (model.S
 	}
 
 	if err := servise.repository.CreateSession(session); err != nil {
-		return model.Session{}, err
+		return nil, err
 	}
 
-	return session, nil
+	return &session, nil
 }
 
-func (service *Service) GetUserSession(token string) (model.User, error) {
+func (service *Service) GetUserSession(token string) (*model.User, error) {
 	session, err := service.repository.GetSession(token)
 	if err != nil {
-		return model.User{}, err
+		return nil, err
 	}
 
 	user, err := service.repository.GetUserID(session.UserID)
 	if err != nil {
-		return model.User{}, err
+		return nil, err
 	}
 
-	return user, nil
+	return &user, nil
 }
 
 func CheckPassword(password string) bool {

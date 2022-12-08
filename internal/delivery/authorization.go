@@ -101,26 +101,7 @@ func (h *Handler) signIn(w http.ResponseWriter, r *http.Request) {
 			h.servErrors(w, http.StatusInternalServerError, fmt.Sprint(err))
 			return
 		}
-		http.SetCookie(w, &http.Cookie{
-			Name:    "session-token",
-			Value:   user.UUID,
-			Expires: user.ExpDate,
-			Path:    "/",
-		})
+		h.setCookie(w, r, *user)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
-	}
-}
-
-func (h *Handler) registration(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/registration" {
-		h.servErrors(w, http.StatusNotFound, http.StatusText(http.StatusNotFound))
-		return
-	}
-
-	if r.Method == http.MethodGet {
-		if err := h.tmpl.ExecuteTemplate(w, "register.html", nil); err != nil {
-			h.servErrors(w, http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
-			return
-		}
 	}
 }

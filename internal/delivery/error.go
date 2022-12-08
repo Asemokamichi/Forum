@@ -1,11 +1,13 @@
 package delivery
 
 import (
+	"fmt"
 	"net/http"
 )
 
 func (h *Handler) servErrors(w http.ResponseWriter, code int, ErrorText string) {
 	w.WriteHeader(code)
+	fmt.Println(code, ErrorText)
 	if err := h.tmpl.ExecuteTemplate(w, "error.html", struct {
 		code      int
 		codeText  string
