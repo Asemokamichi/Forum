@@ -119,6 +119,7 @@ func (h *Handler) logOut(w http.ResponseWriter, r *http.Request) {
 	token := cookie.Value
 
 	cookie = &http.Cookie{
+		Name:    "token",
 		Value:   "",
 		Expires: time.Now(),
 	}

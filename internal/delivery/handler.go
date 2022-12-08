@@ -1,8 +1,8 @@
 package delivery
 
 import (
+	"html/template"
 	"net/http"
-	"text/template"
 
 	"github.com/Asemokamichi/Forum/internal/service"
 )
