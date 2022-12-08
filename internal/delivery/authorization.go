@@ -10,6 +10,7 @@ import (
 func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/signUp" {
 		h.servErrors(w, http.StatusNotFound, "Error Url auth signUp")
+		return
 	}
 
 	if r.Method == http.MethodGet {
@@ -59,6 +60,7 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 
 		if err := h.Service.CreateUser(user); err != nil {
 			h.servErrors(w, http.StatusInternalServerError, fmt.Sprint(err))
+			return
 		}
 
 		fmt.Println(user)
@@ -104,4 +106,18 @@ func (h *Handler) signIn(w http.ResponseWriter, r *http.Request) {
 		h.setCookie(w, r, *user)
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
+}
+
+func (h *Handler) logOut(w http.ResponseWriter, r *http.Request) {
+	token, err := h.deleteCookie(w, r, nil)
+	if err != nil {
+		h.servErrors(w, 500, fmt.Sprint(err))
+		return
+	}
+
+	if err := h.Service.DeleteUserSession(token); err != nil {
+		h.servErrors(w, 500, fmt.Sprint(err))
+		return
+	}
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

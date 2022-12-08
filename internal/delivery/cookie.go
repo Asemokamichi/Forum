@@ -3,6 +3,7 @@ package delivery
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/Asemokamichi/Forum/internal/model"
 )
@@ -18,7 +19,7 @@ func (h *Handler) setCookie(w http.ResponseWriter, r *http.Request, session mode
 	http.SetCookie(w, cookie)
 }
 
-func (h *Handler) checkCookie(w http.ResponseWriter, r *http.Request, session model.Session) (*http.Cookie, error) {
+func (h *Handler) checkCookie(w http.ResponseWriter, r *http.Request, session *model.Session) (*http.Cookie, error) {
 	cookie, err := r.Cookie("token")
 
 	if err == http.ErrNoCookie {
@@ -29,7 +30,7 @@ func (h *Handler) checkCookie(w http.ResponseWriter, r *http.Request, session mo
 		return nil, fmt.Errorf("Check cookie: cookie.Value is empty")
 	}
 
-	if cookie.Value != session.UUID {
+	if session != nil && cookie.Value != session.UUID {
 		return nil, fmt.Errorf("Check cookie: UUID doesn't match")
 	}
 
@@ -37,7 +38,7 @@ func (h *Handler) checkCookie(w http.ResponseWriter, r *http.Request, session mo
 }
 
 func (h *Handler) getUserIDBySession(w http.ResponseWriter, r *http.Request, session model.Session) (*model.User, error) {
-	cookie, err := h.checkCookie(w, r, session)
+	cookie, err := h.checkCookie(w, r, &session)
 	if err != nil {
 		return nil, err
 	}
@@ -50,16 +51,17 @@ func (h *Handler) getUserIDBySession(w http.ResponseWriter, r *http.Request, ses
 	return user, err
 }
 
-func (h *Handler) deleteCookie(w http.ResponseWriter, r *http.Request, session model.Session) error {
-	cookie, err := h.checkCookie(w, r, session)
+func (h *Handler) deleteCookie(w http.ResponseWriter, r *http.Request, session *model.Session) (string, error) {
+	cookie, err := h.checkCookie(w, r, nil)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	cookie = &http.Cookie{
-		MaxAge: -1,
+		Value:   "",
+		Expires: time.Now(),
 	}
 
 	http.SetCookie(w, cookie)
-	return nil
+	return cookie.Value, nil
 }

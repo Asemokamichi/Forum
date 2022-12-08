@@ -60,3 +60,14 @@ func (db *Repository) GetSession(UUID string) (model.Session, error) {
 	}
 	return session, nil
 }
+
+func (db *Repository) DeleteUserSession(token string) error {
+	query := `
+		DELETE FROM SESSION WHERE UUID = ?;
+	`
+
+	if _, err := db.db.Exec(query, token); err != nil {
+		return err
+	}
+	return nil
+}

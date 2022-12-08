@@ -1,25 +1,24 @@
 package server
 
 import (
-	"database/sql"
 	"net/http"
 	"time"
 
 	"github.com/Asemokamichi/Forum/internal/delivery"
 )
 
-type App struct {
-	db         *sql.DB
-	httpServer *http.Server
-}
+// type App struct {
+// 	db         *sql.DB
+// 	httpServer *http.Server
+// }
 
-func NewApp() *App {
-	return &App{}
-}
+// func NewApp() *App {
+// 	return &App{}
+// }
 
-func (a *App) Run() error {
-	return a.httpServer.ListenAndServe()
-}
+// func (a *App) Run() error {
+// 	return a.httpServer.ListenAndServe()
+// }
 
 // hjba
 type Server struct {

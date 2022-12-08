@@ -62,6 +62,10 @@ func (service *Service) GetUserSession(token string) (*model.User, error) {
 	return &user, nil
 }
 
+func (service *Service) DeleteUserSession(token string) error {
+	return service.repository.DeleteUserSession(token)
+}
+
 func CheckPassword(password string) bool {
 	numbers := "0123456789"
 	lowerCase := "qwertyuiopasdfghjklzxcvbnm"

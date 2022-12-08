@@ -23,4 +23,5 @@ func (h *Handler) InitRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/", h.homePage)
 	mux.HandleFunc("/signUp", h.signUp)
 	mux.HandleFunc("/signIn", h.signIn)
+	mux.HandleFunc("/logOut", h.logOut)
 }
