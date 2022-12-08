@@ -3,6 +3,7 @@ package delivery
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/Asemokamichi/Forum/internal/model"
 )
@@ -109,15 +110,35 @@ func (h *Handler) signIn(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) logOut(w http.ResponseWriter, r *http.Request) {
-	token, err := h.deleteCookie(w, r, nil)
+	cookie, err := h.checkCookie(w, r, nil)
 	if err != nil {
 		h.servErrors(w, 500, fmt.Sprint(err))
 		return
 	}
 
+	token := cookie.Value
+
+	cookie = &http.Cookie{
+		Value:   "",
+		Expires: time.Now(),
+	}
+
+	http.SetCookie(w, cookie)
+
+	fmt.Println(token)
+
 	if err := h.Service.DeleteUserSession(token); err != nil {
 		h.servErrors(w, 500, fmt.Sprint(err))
 		return
 	}
+
+	cookie, err = h.checkCookie(w, r, nil)
+	if err != nil {
+		h.servErrors(w, 500, fmt.Sprint(err))
+		return
+	}
+
+	fmt.Println(cookie.Value)
+
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

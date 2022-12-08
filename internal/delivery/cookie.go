@@ -3,7 +3,6 @@ package delivery
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/Asemokamichi/Forum/internal/model"
 )
@@ -49,19 +48,4 @@ func (h *Handler) getUserIDBySession(w http.ResponseWriter, r *http.Request, ses
 	}
 
 	return user, err
-}
-
-func (h *Handler) deleteCookie(w http.ResponseWriter, r *http.Request, session *model.Session) (string, error) {
-	cookie, err := h.checkCookie(w, r, nil)
-	if err != nil {
-		return "", err
-	}
-
-	cookie = &http.Cookie{
-		Value:   "",
-		Expires: time.Now(),
-	}
-
-	http.SetCookie(w, cookie)
-	return cookie.Value, nil
 }
