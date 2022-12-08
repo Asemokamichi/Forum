@@ -61,6 +61,8 @@ func (h *Handler) signUp(w http.ResponseWriter, r *http.Request) {
 			h.servErrors(w, http.StatusInternalServerError, fmt.Sprint(err))
 		}
 
+		fmt.Println(user)
+
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
 }

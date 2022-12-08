@@ -5,20 +5,151 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+
+body{
+    background: #bda9f8;
+}
+.auth-title {
+text-align: center;
+margin-bottom: 50px;
+color: #392e5c;
+}
+
+.auth-text {
+font-weight: 400;
+font-size: 1rem;
+line-height: normal;
+text-align: center;
+color: #969494;
+max-width: 550px;
+margin: 0 auto 30px;
+}
+
+.h1, h1 {
+font-family: "Montserrat",sans-serif;
+font-weight: 700;
+font-size: 1.75rem;
+will-change: contents;
+}
+
+.h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
+padding: 0;
+margin: 0;
+margin-bottom: 0px;
+}
+
+.auth {
+width: 100%;
+margin: 0 auto;
+max-width: 380px;
+padding-bottom: 20px;
+}
+
+.material-group {
+position: relative;
+padding: 20px 0 0;
+margin-bottom: 10px;
+}
+
+.material-input, .material-textarea {
+background: 0 0;
+color: #392e5c;
+font-size: .875rem;
+padding: 9px 10px 7px 0;
+display: block;
+max-width: 380px;
+width: 100%;
+border: 0;
+border-bottom-color: currentcolor;
+border-bottom-style: none;
+border-bottom-width: 0px;
+border-radius: 0;
+border-bottom: 3px solid #392e5c;
+/* background: #fff; */
+/* background-color: rgb(255, 255, 255); */
+font-weight: 400;
+}
+
+.material-bar {
+position: relative;
+display: block;
+max-width: 380px;
+}
+
+.material-label {
+color: #969494;
+font-weight: 400;
+pointer-events: none;
+font-size: .875rem;
+line-height: normal;
+top: 30px;
+margin: auto;
+height: 20px;
+}
+
+button, input {
+  overflow: visible;
+}
+
+button, input, optgroup, select, textarea {
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.btn {
+  border-radius: 2px;
+  font-weight: 700;
+  text-align: center;
+  border: 0;
+  line-height: 1;
+  font-size: .875rem;
+  padding: 13px;
+  min-width: 130px;
+  display: inline-block;
+  box-shadow: 0 2px 9px 0 rgba(255,255,255,.08);
+  letter-spacing: .5px;
+  background-image: linear-gradient(134deg,#9878f7 0,#d79bec 100%);
+  cursor: pointer;
+  color: #dad8de;
+}
+    </style>
 </head>
 <body>
-    <form method="POST" action="/signUp">
-        <label >Username:</label>
-        <input name="username" type="text"><br><br>
-        <label >email:</label>
-        <input name="email" type="text"><br><br>
-        <label >Password:</label>
-        <input name="password" type="password"><br><br>
-        <label >ConfirmPassword:</label>
-        <input name="confirmPassword" type="password"><br><br>
-        <button class="btn px-3" style="background-color: blue; color:white" type="submit" name="submit">GENERATE</button>
-        <!-- <input type="button" onclick="formSubmit()" value="Send form data!"> -->
-      </form> 
-
+        <div class="auth-box">
+            <div class="container">
+                    <h1 class="auth-title">Please sign up to continue</h1>
+                  <p class="auth-text"></p>
+              
+              <form autocomplete="off" class="auth" name="form" method="post" action="/signUp">
+                <div class="material-group">
+                  <input class="material-input" type="username" name="username" required="">
+                  <span class="material-bar"></span>
+                  <label class="material-label">Username</label>
+                </div>
+                <div class="material-group">
+                    <input class="material-input" type="email" name="email" required="">
+                    <span class="material-bar"></span>
+                    <label class="material-label">Email</label>
+                  </div>
+                <div class="material-group">
+                  <input class="material-input" type="password" name="password" required="">
+                  <span class="material-bar"></span>
+                  <label class="material-label">Password</label>
+                </div>
+                <div class="material-group">
+                  <input class="material-input" type="password" name="confirmPassword" required="">
+                  <span class="material-bar"></span>
+                  <label class="material-label">Confirm your password</label>
+                </div>
+        
+                <div class="btn-group">
+                  <button class="btn" type="submit" role="button" aria-label="Sign Up">Sign Up</button>
+                </div>
+              </form>
+            </div>
+          </div>
 </body>
 </html>
