@@ -1,13 +1,21 @@
 package repository
 
-import "database/sql"
+import (
+	"database/sql"
+)
 
 type Repository struct {
-	db *sql.DB
+	Authorization
+	Post
+	Commentary
+	Reaction
 }
 
 func NewRepository(db *sql.DB) *Repository {
 	return &Repository{
-		db: db,
+		Authorization: NewAuthSqlite(db),
+		Post:          NewPostSqlite(db),
+		Commentary:    NewCommentSqlite(db),
+		Reaction:      NewReactionSqlite(db),
 	}
 }

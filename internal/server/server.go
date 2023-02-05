@@ -3,38 +3,20 @@ package server
 import (
 	"net/http"
 	"time"
-
-	"github.com/Asemokamichi/Forum/internal/delivery"
 )
 
-// type App struct {
-// 	db         *sql.DB
-// 	httpServer *http.Server
-// }
-
-// func NewApp() *App {
-// 	return &App{}
-// }
-
-// func (a *App) Run() error {
-// 	return a.httpServer.ListenAndServe()
-// }
-
-// hjba
 type Server struct {
-	S *http.Server
+	httpServer *http.Server
 }
 
-func NewServer(handler *delivery.Handler) *Server {
-	mux := http.NewServeMux()
-	handler.InitRoutes(mux)
-	return &Server{
-		S: &http.Server{
-			Addr:           ":8080",
-			Handler:        mux,
-			MaxHeaderBytes: 1 << 20,
-			ReadTimeout:    10 * time.Second,
-			WriteTimeout:   10 * time.Second,
-		},
+func (s *Server) Run(port string, handler http.Handler) error {
+	s.httpServer = &http.Server{
+		Addr:           ":" + port,
+		MaxHeaderBytes: 1 << 20,
+		Handler:        handler,
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   10 * time.Second,
 	}
+
+	return s.httpServer.ListenAndServe()
 }

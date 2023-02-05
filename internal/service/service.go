@@ -1,13 +1,21 @@
 package service
 
-import "github.com/Asemokamichi/Forum/internal/repository"
+import (
+	"forum/internal/repository"
+)
 
 type Service struct {
-	repository *repository.Repository
+	Authorization
+	Post
+	Commentary
+	Reaction
 }
 
-func NewService(repository *repository.Repository) *Service {
+func NewService(repo *repository.Repository) *Service {
 	return &Service{
-		repository: repository,
+		Authorization: NewAuthService(repo.Authorization),
+		Post:          NewPostService(repo.Post),
+		Commentary:    NewCommentService(repo.Commentary),
+		Reaction:      NewReactionService(repo.Reaction),
 	}
 }
